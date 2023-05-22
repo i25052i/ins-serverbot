@@ -1,0 +1,2 @@
+#define logwatcher_VERSION_MAJOR @logwatcher_VERSION_MAJOR@
+#define logwatcher_VERSION_MINOR @logwatcher_VERSION_MINOR@
