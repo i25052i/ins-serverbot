@@ -2,6 +2,7 @@
 #include <string>
 
 #include "logwatcher.h"
+#include "rcon.h"
 
 int main(int argc, char** argv[]) {
 
@@ -11,7 +12,9 @@ int main(int argc, char** argv[]) {
               << logwatcher_VERSION_MINOR << std::endl;
     std::cout << "Starting..." << std::endl;
 
-    /* Consume server logs */
+    //
+
+    /* Watch server logs on stdin */
     while (true) {
         std::string line;
 
@@ -21,7 +24,8 @@ int main(int argc, char** argv[]) {
             continue;
         }
 
-        std::cout << line << std::endl;
+        //std::cout << line << std::endl;
+        break;
     }
 
     return 0;

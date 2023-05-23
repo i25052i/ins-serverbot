@@ -1,0 +1,1 @@
+add_library(rcon rcon.cpp)
