@@ -11,7 +11,7 @@
 
 /* rcon_packet */
 struct rcon_packet {
-    int size;
+    size_t size;
     int id;
     int type;
     std::string body;
@@ -19,15 +19,14 @@ struct rcon_packet {
 
 /* rcon_packet methods */
 
-struct rcon_packet *rp_construct(int size, int id, int type, std::string body);
-struct rcon_packet *rp_construct_from_stream(std::string message);
-void rp_destroy(struct rcon_packet *packet);
+struct rcon_packet *rp_construct(int id, int type, std::string body);
+void rp_destroy(struct rcon_packet *&packet);
 std::string rp_stream_form(struct rcon_packet *packet);
 
 /* data conversion methods */
 
 void bits_to_u32(unsigned &ret, unsigned char *bits);
-void u32_to_bits(unsigned char *ret, unsigned u32);
+void u32_to_bits(unsigned char ret[], unsigned u32);
 
 /* rcon connection class */
 class rcon_connection {

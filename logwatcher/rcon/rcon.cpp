@@ -7,10 +7,10 @@
 /*
  * Constructs a rcon_packet struct directly from given values for each field.
  */
-struct rcon_packet *rp_construct(int size, int id, int type, std::string body) {
+struct rcon_packet *rp_construct(int id, int type, std::string body) {
     struct rcon_packet *rp = new rcon_packet;
 
-    rp->size = size;
+    rp->size = 10 + body.length();
     rp->id = id;
     rp->type = type;
     rp->body = body;
@@ -19,24 +19,9 @@ struct rcon_packet *rp_construct(int size, int id, int type, std::string body) {
 }
 
 /*
- * Given std::string message that is a valid rcon packet, create a rcon_packet
- * struct to represent that packet.
- */
-struct rcon_packet *rp_construct_from_stream(std::string message) {
-    //process message
-
-    int size = 0;
-    int id = 0;
-    int type = 0;
-    std::string body = "";
-
-    return rp_construct(size, id, type, body);
-}
-
-/*
  * Destroy a rcon_packet struct.
  */
-void rp_destroy(struct rcon_packet *packet) {
+void rp_destroy(struct rcon_packet *&packet) {
     delete packet;
     packet = nullptr;
 }
@@ -46,7 +31,28 @@ void rp_destroy(struct rcon_packet *packet) {
  * the packet suitable for sending over the internet.
  */
 std::string rp_stream_form(struct rcon_packet *packet) {
-    return "";
+    std::string ret = std::string();
+
+    //size field
+    unsigned char *ubuffer = new unsigned char[4];
+    u32_to_bits(ubuffer, (unsigned)packet->size);
+    for (unsigned i = 0; i < 4; i++) ret.push_back(ubuffer[i]);
+
+    //id field 
+    u32_to_bits(ubuffer, (unsigned)packet->id);
+    for (unsigned i = 0; i < 4; i++) ret.push_back(ubuffer[i]);
+
+    //type field
+    u32_to_bits(ubuffer, (unsigned)packet->type);
+    for (unsigned i = 0; i < 4; i++) ret.push_back(ubuffer[i]);
+
+    //body
+    ret.append(packet->body);
+
+    //null terminators
+    ret.append('\0\0');
+
+    return ret;
 }
 
 /* data conversion methods */
