@@ -4,7 +4,7 @@
 #include "logwatcher.h"
 #include "rcon.h"
 
-int main(int argc, char** argv[]) {
+int main(int argc, char* argv[]) {
 
     /* Startup Messages */
     std::cout << "ins-serverbot" << std::endl;
@@ -12,7 +12,9 @@ int main(int argc, char** argv[]) {
               << logwatcher_VERSION_MINOR << std::endl;
     std::cout << "Starting..." << std::endl;
 
-    //
+    for (int i = 0; i < argc; i++) {
+        std::cout << i << ": " << argv[i] << std::endl;
+    }
 
     /* Watch server logs on stdin */
     while (true) {
