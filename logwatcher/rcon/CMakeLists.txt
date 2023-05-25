@@ -1,1 +1,1 @@
-add_library(rcon rcon.cpp)
+add_library(rcon rcon.cpp rcon_connection.cpp)
