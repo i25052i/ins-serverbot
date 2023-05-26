@@ -76,7 +76,8 @@ std::string rp_stream_form(struct rcon_packet *packet) {
     ret.append(packet->body);
 
     //null terminators
-    ret.append('\0\0');
+    ret.push_back('\0');
+    ret.push_back('\0');
 
     return ret;
 }

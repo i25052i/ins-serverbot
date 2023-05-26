@@ -17,17 +17,28 @@ int main(int argc, char* argv[]) {
     }
 
     /* Watch server logs on stdin */
-    while (true) {
-        std::string line;
+    // while (true) {
+    //     std::string line;
 
-        std::getline(std::cin, line);
+    //     std::getline(std::cin, line);
 
-        if (line.empty()) {
-            continue;
-        }
+    //     if (line.empty()) {
+    //         continue;
+    //     }
 
-        //std::cout << line << std::endl;
-        break;
+    //     //std::cout << line << std::endl;
+    //     break;
+    // }
+
+    std::cout << "Instantiating connection" << std::endl;
+    rcon_connection rc = rcon_connection("localhost", 27015, "gavinmeme");
+    std::cout << "Connected? " << rc.is_connected() << " Authenticated? " << rc.is_authenticated() << std::endl;
+
+    if (rc.is_authenticated()) {
+        std::string response;
+        std::cout << "Testing: say test" << std::endl;
+        rc.send(response, "say test");
+        std::cout << "Response: " << response << std::endl;
     }
 
     return 0;

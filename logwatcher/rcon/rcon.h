@@ -42,18 +42,18 @@ class rcon_connection {
     boost::asio::ip::tcp::socket *socket;
 
     public:
-        rcon_connection(const std::string address, const int port, const std::string password, const double timeout=10.0);
+        rcon_connection(const std::string address, const int port, const std::string password);
         virtual ~rcon_connection();
 
-        int send(std::string& result, const std::string message, int type=SERVERDATA_EXECCOMMAND);
+        int send(std::string& response, const std::string message, int type=SERVERDATA_EXECCOMMAND);
         bool is_connected() const;
         bool is_authenticated() const;
         int dest_address(std::string& address, int& port);
     
     private:
         int connect();
-        int send_packet(int type, std::string body);
-        int recv_packet();
+        int send_packet(int type, std::string body, int &id);
+        int recv_packet(struct rcon_packet *&received);
         int authenticate();
 
 };

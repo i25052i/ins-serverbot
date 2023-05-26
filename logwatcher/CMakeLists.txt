@@ -14,6 +14,8 @@ set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
+add_definitions(-D_WIN32_WINNT=0x0A00)
+
 target_link_libraries(logwatcher PUBLIC rcon)
 
 target_include_directories(logwatcher PUBLIC
