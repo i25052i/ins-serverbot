@@ -19,6 +19,32 @@ struct rcon_packet *rp_construct(int id, int type, std::string body) {
 }
 
 /*
+ * Constructs a rcon_packet struct from its stream form, i.e. the raw string
+ * received from the server.
+ * Assume that the size field of the packet has already been stripped from
+ * the string.
+ */
+struct rcon_packet *rp_construct_from_stream(std::string stream)
+{
+    if (stream.length() < 10) return nullptr;
+
+    //extract id and type fields
+    unsigned id;
+    unsigned type;
+
+    unsigned char *buf = new unsigned char[4]{0};
+    for (int i = 0; i < 4; i++) buf[i] = stream.substr(0, 4)[i];
+    bits_to_u32(id, buf);
+    for (int i = 0; i < 4; i++) buf[i] = stream.substr(4, 4)[i];
+    bits_to_u32(type, buf);
+
+    //extract body
+    std::string body = stream.substr(8, stream.length() - 10);
+    
+    return rp_construct((int)id, type, body);
+}
+
+/*
  * Destroy a rcon_packet struct.
  */
 void rp_destroy(struct rcon_packet *&packet) {

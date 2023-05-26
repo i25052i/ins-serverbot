@@ -2,6 +2,7 @@
 #define RCON_H
 
 #include <string>
+#include <boost/asio.hpp>
 
 /* packet type constants */
 #define SERVERDATA_AUTH 3
@@ -20,6 +21,7 @@ struct rcon_packet {
 /* rcon_packet methods */
 
 struct rcon_packet *rp_construct(int id, int type, std::string body);
+struct rcon_packet *rp_construct_from_stream(std::string stream);
 void rp_destroy(struct rcon_packet *&packet);
 std::string rp_stream_form(struct rcon_packet *packet);
 
@@ -35,15 +37,15 @@ class rcon_connection {
     const std::string password;
 
     unsigned counter;
-    unsigned socket_fd;
     bool connected;
     bool authenticated;
+    boost::asio::ip::tcp::socket *socket;
 
     public:
         rcon_connection(const std::string address, const int port, const std::string password, const double timeout=10.0);
         virtual ~rcon_connection();
 
-        int send(std::string& result, const std::string message, const int type=SERVERDATA_EXECCOMMAND);
+        int send(std::string& result, const std::string message, int type=SERVERDATA_EXECCOMMAND);
         bool is_connected() const;
         bool is_authenticated() const;
         int dest_address(std::string& address, int& port);
