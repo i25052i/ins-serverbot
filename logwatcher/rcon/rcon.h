@@ -10,6 +10,14 @@
 #define SERVERDATA_EXECCOMMAND 2
 #define SERVERDATA_RESPONSE_VALUE 0
 
+/* rcon connection error codes */
+#define ENCONN 1 /* Not connected */
+#define ENAUTH 2 /* Not authorized */
+#define ESENDP 3 /* Packet send error */
+#define ERECVP 4 /* Packet receive error */
+#define ECCONN 5 /* Connection creation error */
+#define EPASSW 6 /* Wrong password */
+
 /* rcon_packet */
 struct rcon_packet {
     size_t size;

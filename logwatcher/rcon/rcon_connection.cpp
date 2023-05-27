@@ -44,7 +44,8 @@ rcon_connection::~rcon_connection() {
 }
 
 int rcon_connection::send(std::string& response, const std::string message, const int type) {
-    if (!connected || !authenticated) return 1;
+    if (!connected) return ENCONN;
+    if (!authenticated) return ENAUTH;
     
     int result;
     int sent_id;
@@ -95,7 +96,7 @@ int rcon_connection::connect() {
     boost::asio::connect(*socket, endpoints, ec);
     if (ec) {
         std::cout << ec.what() << std::endl;
-        return 1;
+        return ECCONN;
     }
 
     connected = true;
@@ -103,7 +104,7 @@ int rcon_connection::connect() {
 }
 
 int rcon_connection::send_packet(int type, std::string body, int &id) {
-    if (!connected) return 1;
+    if (!connected) ENCONN;
 
     //construct and send packet
     id = counter++;
@@ -117,7 +118,7 @@ int rcon_connection::send_packet(int type, std::string body, int &id) {
         std::cout << ec.what() << std::endl;
         connected = false;
         authenticated = false;
-        return 1;
+        return ESENDP;
     }
     return 0;
 }
@@ -131,7 +132,7 @@ int rcon_connection::recv_packet(struct rcon_packet *&received) {
         std::cout << ec.what() << std::endl;
         connected = false;
         authenticated = false;
-        return 1;
+        return ERECVP;
     }
     
     unsigned length;
@@ -142,7 +143,13 @@ int rcon_connection::recv_packet(struct rcon_packet *&received) {
 
     //read in the rest of the packet
     buf.resize(length, '\0');
-    boost::asio::read(*socket, boost::asio::buffer(buf, length));
+    boost::asio::read(*socket, boost::asio::buffer(buf, length), ec);
+    if (ec) {
+        std::cout << ec.what() << std::endl;
+        connected = false;
+        authenticated = false;
+        return ERECVP;
+    }
 
     received = rp_construct_from_stream(buf);
 
@@ -166,7 +173,7 @@ int rcon_connection::authenticate() {
         }
 
         if (response->id == -1) {
-            return 1;
+            return EPASSW;
         }
 
         if (response->id == sent_id && response->type == SERVERDATA_AUTH_RESPONSE) {
