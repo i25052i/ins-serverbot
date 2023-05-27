@@ -6,6 +6,7 @@
 
 /*
  * Constructs a rcon_packet struct directly from given values for each field.
+ * Delete the packet later!
  */
 struct rcon_packet *rp_construct(int id, int type, std::string body) {
     struct rcon_packet *rp = new rcon_packet;
@@ -37,6 +38,7 @@ struct rcon_packet *rp_construct_from_stream(std::string stream)
     bits_to_u32(id, buf);
     for (int i = 0; i < 4; i++) buf[i] = stream.substr(4, 4)[i];
     bits_to_u32(type, buf);
+    delete[] buf;
 
     //extract body
     std::string body = stream.substr(8, stream.length() - 10);
@@ -78,6 +80,8 @@ std::string rp_stream_form(struct rcon_packet *packet) {
     //null terminators
     ret.push_back('\0');
     ret.push_back('\0');
+
+    delete[] ubuffer;
 
     return ret;
 }

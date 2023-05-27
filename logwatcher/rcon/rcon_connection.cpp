@@ -59,6 +59,7 @@ int rcon_connection::send(std::string& response, const std::string message, cons
     while (true) {
         result = recv_packet(received);
         if (result) {
+            rp_destroy(received);
             return result;
         }
 
@@ -68,6 +69,7 @@ int rcon_connection::send(std::string& response, const std::string message, cons
     }
 
     response = received->body;
+    rp_destroy(received);
 
     return 0;
 }
