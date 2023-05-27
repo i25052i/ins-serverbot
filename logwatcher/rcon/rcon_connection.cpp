@@ -16,7 +16,8 @@ rcon_connection::rcon_connection(const std::string address, const int port, cons
     counter(0),
     connected(false),
     authenticated(false),
-    socket(nullptr)
+    socket(nullptr),
+    context(nullptr)
 {
     int result;
 
@@ -34,12 +35,15 @@ rcon_connection::rcon_connection(const std::string address, const int port, cons
 }
 
 rcon_connection::~rcon_connection() {
+    socket->shutdown(tcp::socket::shutdown_send);
+    socket->close();
     if (socket != nullptr) delete socket;
     socket = nullptr;
+    if (context != nullptr) delete context;
+    context = nullptr;
 }
 
 int rcon_connection::send(std::string& response, const std::string message, const int type) {
-    std::cout << "Sending " << message << std::endl;
     if (!connected || !authenticated) return 1;
     
     int result;
@@ -82,10 +86,11 @@ int rcon_connection::dest_address(std::string& address, int& port) {
 }
 
 int rcon_connection::connect() {
-    boost::asio::io_context io_context;
-    tcp::resolver resolver(io_context);
+    context = new boost::asio::io_context;
+    tcp::resolver resolver(*context);
     tcp::resolver::results_type endpoints = resolver.resolve(address, std::to_string(port));
-    socket = new tcp::socket(io_context);
+    socket = new tcp::socket(*context);
+
     boost::system::error_code ec;
     boost::asio::connect(*socket, endpoints, ec);
     if (ec) {
@@ -98,7 +103,6 @@ int rcon_connection::connect() {
 }
 
 int rcon_connection::send_packet(int type, std::string body, int &id) {
-    std::cout << "send_packet" << std::endl;
     if (!connected) return 1;
 
     //construct and send packet
@@ -120,8 +124,15 @@ int rcon_connection::send_packet(int type, std::string body, int &id) {
 
 int rcon_connection::recv_packet(struct rcon_packet *&received) {
     //read in the packet length
-    std::string buf;
-    boost::asio::read(*socket, boost::asio::buffer(buf, 4));
+    std::string buf({'\0', '\0', '\0', '\0'});
+    boost::system::error_code ec;
+    boost::asio::read(*socket, boost::asio::buffer(buf, 4), ec);
+    if (ec) {
+        std::cout << ec.what() << std::endl;
+        connected = false;
+        authenticated = false;
+        return 1;
+    }
     
     unsigned length;
     unsigned char *length_buffer = new unsigned char[4]{0};
@@ -130,9 +141,8 @@ int rcon_connection::recv_packet(struct rcon_packet *&received) {
     delete[] length_buffer;
 
     //read in the rest of the packet
+    buf.resize(length, '\0');
     boost::asio::read(*socket, boost::asio::buffer(buf, length));
-
-    std::cout << "Packet Received:\n" << length << std::endl << buf << std::endl;
 
     received = rp_construct_from_stream(buf);
 

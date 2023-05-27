@@ -40,6 +40,7 @@ class rcon_connection {
     bool connected;
     bool authenticated;
     boost::asio::ip::tcp::socket *socket;
+    boost::asio::io_context *context;
 
     public:
         rcon_connection(const std::string address, const int port, const std::string password);

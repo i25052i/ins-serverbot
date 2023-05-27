@@ -39,6 +39,10 @@ int main(int argc, char* argv[]) {
         std::cout << "Testing: say test" << std::endl;
         rc.send(response, "say test");
         std::cout << "Response: " << response << std::endl;
+
+        std::cout << "Testing: scenarios" << std::endl;
+        rc.send(response, "scenarios");
+        std::cout << "Response: " << response << std::endl;
     }
 
     return 0;
