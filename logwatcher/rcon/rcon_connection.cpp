@@ -48,13 +48,19 @@ int rcon_connection::send(std::string& response, const std::string message, cons
     if (!authenticated) return ENAUTH;
     
     int result;
-    int sent_id;
+    int sent_id, halt_id;
     struct rcon_packet *received;
 
     result = send_packet(type, message, sent_id);
     if (result) {
         return result;
     }
+    result = send_packet(SERVERDATA_EXECCOMMAND, "foo", halt_id);
+    if (result) {
+        return result;
+    }
+
+    response = "";
 
     while (true) {
         result = recv_packet(received);
@@ -64,12 +70,15 @@ int rcon_connection::send(std::string& response, const std::string message, cons
         }
 
         if (received->id == sent_id) {
+            response.append(received->body);
+            rp_destroy(received);
+        } else if (received->id == halt_id) {
+            rp_destroy(received);
             break;
+        } else {
+            //discard packet
         }
     }
-
-    response = received->body;
-    rp_destroy(received);
 
     return 0;
 }

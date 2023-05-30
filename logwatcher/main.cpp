@@ -35,13 +35,21 @@ int main(int argc, char* argv[]) {
     std::cout << "Connected? " << rc.is_connected() << " Authenticated? " << rc.is_authenticated() << std::endl;
 
     if (rc.is_authenticated()) {
-        std::string response;
-        std::cout << "Testing: say test" << std::endl;
-        rc.send(response, "say test");
+        std::string response, command;
+
+        command = "say test";
+        std::cout << "Testing: " << command << std::endl;
+        rc.send(response, command);
         std::cout << "Response: " << response << std::endl;
 
-        std::cout << "Testing: scenarios" << std::endl;
-        rc.send(response, "scenarios");
+        command = "scenarios";
+        std::cout << "Testing: " << command << std::endl;
+        rc.send(response, command);
+        std::cout << "Response: " << response << std::endl;
+
+        command = "travelscenario Scenario_Crossing_Checkpoint_Security";
+        std::cout << "Testing: " << command << std::endl;
+        rc.send(response, command);
         std::cout << "Response: " << response << std::endl;
     }
 
