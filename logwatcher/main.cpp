@@ -5,6 +5,7 @@
 #include "rcon.h"
 #include "fsm.h"
 #include "features.h"
+#include "parser.h"
 
 int main(int argc, char* argv[]) {
 
@@ -33,10 +34,24 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < argc; i++) {
         std::cout << i << ": " << argv[i] << std::endl;
     }
+    std::cout << std::endl;
 
-    std::string line;
-    std::getline(std::cin, line);
-    std::cout << line << std::endl;
+    /* Wait for server to open RCON port */
+    while (true) {
+        std::string line;
+
+        std::getline(std::cin, line);
+
+        if (line.empty()) {
+            continue;
+        }
+
+        //since LogRcon isn't logged on output, pick something that will come after
+        if (line.find("LogInit: Display: Engine is initialized. Leaving FEngineLoop::Init()") != std::string::npos) {
+            break;
+        }
+    }
+    
 
     /* Initialize connection to server */
     std::cout << "Connecting to server " << hostname << ':' << port << std::endl;
@@ -72,8 +87,7 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
-        std::cout << line << std::endl;
-        //manager.update_all(line);
+        manager.update_all(line);
     }
 
     return 0;
