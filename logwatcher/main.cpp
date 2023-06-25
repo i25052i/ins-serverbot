@@ -46,8 +46,7 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
-        //since LogRcon isn't logged on output, pick something that will come after
-        if (line.find("LogInit: Display: Engine is initialized. Leaving FEngineLoop::Init()") != std::string::npos) {
+        if (line.find("LogRcon: Rcon listening at ") != std::string::npos) {
             break;
         }
     }

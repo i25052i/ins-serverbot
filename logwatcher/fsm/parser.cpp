@@ -9,10 +9,23 @@
  */
 int parse_chat_message(std::string logline, struct chat_message *ret) {
     //example chat message log line:
-    //LogChat: Display: SENDER(SENDERSTEAM64) Global Chat: MESSAGE
+    //[2021.05.05-05.26.17:149][474]LogChat: Display: SENDER(SENDERSTEAM64) Global Chat: MESSAGE
 
-    size_t iter = 0;
+    //discard log time and number (two ']'s)
+    size_t iter;
     size_t user_start, user_end, msg_start;
+
+    iter = logline.find(']');
+    if (iter == std::string::npos) {
+        return 1;
+    }
+    iter++;
+
+    iter = logline.find(']', iter);
+    if (iter == std::string::npos) {
+        return 1;
+    }
+    iter++;
 
     //check logtype
     if (logline.find("LogChat: Display: ", iter) != iter) {
@@ -65,23 +78,36 @@ int parse_chat_message(std::string logline, struct chat_message *ret) {
  */
 int parse_player_join(std::string logline, struct player_join *ret) {
     //example player join log line:
-    //LogNet: Login request: ?Name=PLAYERNAME userId: SteamNWI:STEAM64 platform: SteamNWI
-    //As LogNet isn't logged to standard output, will have to use LogEOSAntiCheat instead
-    //this will require anticheat to be on...
+    //[2023.01.13-05.07.26:027][471]LogNet: Login request: ?Name=PLAYERNAME userId: SteamNWI:STEAM64 platform: SteamNWI
 
-    size_t iter = 0;
+    //discard log time and number (two ']'s)
+    size_t iter;
+
+    iter = logline.find(']');
+    if (iter == std::string::npos) {
+        return 1;
+    }
+    iter++;
+
+    iter = logline.find(']', iter);
+    if (iter == std::string::npos) {
+        return 1;
+    }
+    iter++;
 
     //check logtype
-    if (logline.find("LogEOSAntiCheat: Display: ServerRegisterClient: Client: (", iter) != iter) {
+    if (logline.find("LogNet: Login request: ", iter) != iter) {
         return 1;
     } else {
         //move iter to point after the logtype
-        iter += std::string("LogEOSAntiCheat: Display: ServerRegisterClient: Client: (").length();
+        iter += std::string("LogNet: Login request: ").length();
     }
 
     //parse id
+    iter = logline.find("userId: SteamNWI:");
     if (iter != std::string::npos) {
-        size_t end = logline.find(')', iter);
+        iter += std::string("userId: SteamNWI:").length();
+        size_t end = logline.find(' ', iter);
         ret->id = logline.substr(iter, end - iter);
     } else {
         return 1;
@@ -98,9 +124,22 @@ int parse_player_join(std::string logline, struct player_join *ret) {
  */
 int parse_state_change(std::string logline, struct state_change *ret) {
     //example state change log line:
-    //LogGameMode: Display: State: RoundWon -> PostRound
+    //[2023.01.13-05.12.49:664][823]LogGameMode: Display: State: RoundWon -> PostRound
 
-    size_t iter = 0, arrow;
+    //discard log time and number (two ']'s)
+    size_t iter, arrow;
+
+    iter = logline.find(']');
+    if (iter == std::string::npos) {
+        return 1;
+    }
+    iter++;
+
+    iter = logline.find(']', iter);
+    if (iter == std::string::npos) {
+        return 1;
+    }
+    iter++;
 
     //check logtype
     if (logline.find("LogGameMode: Display: State: ", iter) != iter) {
